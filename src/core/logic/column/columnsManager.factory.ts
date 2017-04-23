@@ -1,6 +1,7 @@
 import moment from 'moment';
+import GanttBinarySearch from '../util/binarySearch.service';
 
-export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersGenerator, $filter, $timeout, ganttLayout, ganttBinarySearch) {
+export default function (GanttColumnGenerator, GanttColumnBuilder, GanttHeadersGenerator, $filter, $timeout, ganttLayout, ganttBinarySearch: GanttBinarySearch) {
   'ngInject';
   let ColumnsManager = function (gantt) {
     let self = this;

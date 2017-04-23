@@ -1,18 +1,20 @@
 import angular from 'angular';
 
-export default function (GanttTimespan) {
-  'ngInject';
-  let GanttTimespansManager = function (gantt) {
-    let self = this;
+import {Timespan, TimespanModel} from './timespan.factory';
 
+export class GanttTimespansManager {
+  static GanttTimespan: { new(gantt: any, model: TimespanModel): Timespan };
+
+  private gantt: any;
+  private timespansMap: {} = {};
+  private timespans: Timespan[] = [];
+
+  constructor(gantt) {
     this.gantt = gantt;
 
-    this.timespansMap = {};
-    this.timespans = [];
-
-    this.gantt.$scope.$watchCollection('timespans', function (newValue) {
-      self.clearTimespans();
-      self.loadTimespans(newValue);
+    this.gantt.$scope.$watchCollection('timespans', (newValue: TimespanModel[]) => {
+      this.clearTimespans();
+      this.loadTimespans(newValue);
     });
 
     this.gantt.api.registerMethod('timespans', 'load', this.loadTimespans, this);
@@ -24,8 +26,11 @@ export default function (GanttTimespan) {
     this.gantt.api.registerEvent('timespans', 'change');
   };
 
-  // Adds or updates timespans
-  GanttTimespansManager.prototype.loadTimespans = function (timespans) {
+  /**
+   * Adds or updates timespans
+   * @param timespans
+   */
+  loadTimespans(timespans: TimespanModel | TimespanModel[]) {
     if (!angular.isArray(timespans)) {
       timespans = timespans !== undefined ? [timespans] : [];
     }
@@ -39,10 +44,14 @@ export default function (GanttTimespan) {
     }
   };
 
-  // Adds a timespan or merges the timespan if there is already one with the same id
-  GanttTimespansManager.prototype.loadTimespan = function (timespanModel) {
+  /**
+   * Adds a timespan or merges the timespan if there is already one with the same id
+   * @param timespanModel
+   * @returns {boolean}
+   */
+  loadTimespan(timespanModel: TimespanModel) {
     // Copy to new timespan (add) or merge with existing (update)
-    let timespan;
+    let timespan: Timespan;
     let isUpdate = false;
 
     if (timespanModel.id in this.timespansMap) {
@@ -51,7 +60,7 @@ export default function (GanttTimespan) {
       isUpdate = true;
       this.gantt.api.timespans.raise.change(timespan);
     } else {
-      timespan = new GanttTimespan(this.gantt, timespanModel);
+      timespan = new GanttTimespansManager.GanttTimespan(this.gantt, timespanModel);
       this.timespansMap[timespanModel.id] = timespan;
       this.timespans.push(timespan);
       this.gantt.api.timespans.raise.add(timespan);
@@ -61,20 +70,18 @@ export default function (GanttTimespan) {
     return isUpdate;
   };
 
-  GanttTimespansManager.prototype.removeTimespans = function (timespans) {
+  removeTimespans(timespans: TimespanModel | TimespanModel[]) {
     if (!angular.isArray(timespans)) {
       timespans = [timespans];
     }
 
     for (let i = 0, l = timespans.length; i < l; i++) {
       let timespanData = timespans[i];
-      // Delete the timespan
       this.removeTimespan(timespanData.id);
     }
-    this.updateVisibleObjects();
   };
 
-  GanttTimespansManager.prototype.removeTimespan = function (timespanId) {
+  removeTimespan(timespanId: string) {
     if (timespanId in this.timespansMap) {
       delete this.timespansMap[timespanId]; // Remove from map
 
@@ -96,17 +103,24 @@ export default function (GanttTimespan) {
     return undefined;
   };
 
-  // Removes all timespans
-  GanttTimespansManager.prototype.clearTimespans = function () {
+  /**
+   * Removes all timespans
+   */
+  clearTimespans() {
     this.timespansMap = {};
     this.timespans = [];
   };
 
-  GanttTimespansManager.prototype.updateTimespansPosAndSize = function () {
+  updateTimespansPosAndSize() {
     for (let i = 0, l = this.timespans.length; i < l; i++) {
       this.timespans[i].updatePosAndSize();
     }
   };
+}
 
+export default function (GanttTimespan: { new(gantt: any, model: TimespanModel): Timespan }) {
+  'ngInject';
+
+  GanttTimespansManager.GanttTimespan = GanttTimespan;
   return GanttTimespansManager;
 }

@@ -1,4 +1,6 @@
-export default function (ganttBinarySearch) {
+import GanttBinarySearch from '../../logic/util/binarySearch.service';
+
+export default function (ganttBinarySearch: GanttBinarySearch) {
   'ngInject';
 
   // Returns only the columns which are visible on the screen

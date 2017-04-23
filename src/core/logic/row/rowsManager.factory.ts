@@ -2,7 +2,9 @@ import angular from 'angular';
 
 import moment from 'moment';
 
-export default function (GanttRow, ganttArrays, $filter, $timeout) {
+import GanttArrays from '../util/arrays.service';
+
+export default function (GanttRow, ganttArrays: GanttArrays, $filter, $timeout) {
   'ngInject';
   let RowsManager = function (gantt) {
     let self = this;

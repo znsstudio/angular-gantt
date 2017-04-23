@@ -2,7 +2,17 @@ import angular from 'angular';
 
 import moment from 'moment';
 
-export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, GanttBody, GanttRowHeader, GanttHeader, GanttSide, GanttObjectModel, GanttRowsManager, GanttColumnsManager, GanttTimespansManager, GanttCurrentDateManager, ganttArrays, $document, $timeout) {
+import {GanttApi} from './api/api.factory';
+import {GanttOptions} from './api/options.factory';
+import {GanttCalendar} from './calendar/calendar.factory';
+import {GanttCurrentDateManager} from './calendar/currentDateManager.factory';
+import {GanttObjectModel} from './model/objectModel.factory';
+
+export default function (
+  GanttApi: { new(gantt: any): GanttApi },
+  GanttOptions: {new(values: { [option: string]: any; },
+  defaultValues: { [option: string]: any; }): GanttOptions},
+  GanttCalendar: {new(): GanttCalendar}, GanttScroll, GanttBody, GanttRowHeader, GanttHeader, GanttSide, GanttObjectModel: {new(gantt: any): GanttObjectModel}, GanttRowsManager, GanttColumnsManager, GanttTimespansManager, GanttCurrentDateManager: {new(gantt: any): GanttCurrentDateManager}, ganttArrays, $document, $timeout) {
   'ngInject';
   // Gantt logic. Manages the columns, rows and sorting functionality.
   let Gantt = function ($scope, $element) {
@@ -59,7 +69,7 @@ export default function (GanttApi, GanttOptions, GanttCalendar, GanttScroll, Gan
     this.api.registerMethod('data', 'clear', this.clearData, this);
     this.api.registerMethod('data', 'get', this.getData, this);
 
-    this.calendar = new GanttCalendar(this);
+    this.calendar = new GanttCalendar();
     this.calendar.registerTimeFrames(this.options.value('timeFrames'));
     this.calendar.registerDateFrames(this.options.value('dateFrames'));
 
